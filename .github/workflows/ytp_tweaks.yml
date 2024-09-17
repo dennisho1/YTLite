@@ -26,50 +26,6 @@ jobs:
     permissions:
       contents: write
 
-    steps:
-      - name: Checkout Main
-        uses: actions/checkout@v4.1.1
-        with:
-          path: main
-          submodules: recursive
-
-      - name: Install Dependencies
-        run: brew install make
-        
-      - name: Set PATH environment variable
-        run: |
-          echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH
-
-      - name: Cache Theos
-        id: theos
-        uses: actions/cache@v4.0.1
-        env:
-          cache-name: theos_cache
-        with:
-          path: theos/
-          key: ${{ env.cache-name }}
-          restore-keys: ${{ env.cache-name }}
-
-      - name: Setup Theos
-        if: steps.theos.outputs.cache-hit != 'true'
-        uses: actions/checkout@v4.1.7
-        with:
-          repository: theos/theos
-          ref: 3da31488281ecf4394d10302d2629607f4a1aa07
-          path: ${{ github.workspace }}/theos
-          submodules: recursive
-
-      - name: Download iOS SDK
-        if: steps.theos.outputs.cache-hit != 'true'
-        run: |
-          git clone --quiet -n --depth=1 --filter=tree:0 https://github.com/theos/sdks/
-          cd sdks
-          git sparse-checkout set --no-cone iPhoneOS13.7.sdk
-          git checkout
-          mv *.sdk $THEOS/sdks
-        env:
-          THEOS: ${{ github.workspace }}/theos
-
       - name: Install Cyan
         run: |
           pipx install --force https://github.com/asdfzxcvbn/pyzule-rw/archive/main.zip
@@ -94,29 +50,15 @@ jobs:
           git checkout
           mv *.appex ${{ github.workspace }}
 
-      - name: Clone YouTubeHeader
-        run: |
-          if [ -d "$THEOS/include/YouTubeHeader" ]; then
-            echo "YouTubeHeader exists. Pulling latest changes..."
-            cd $THEOS/include/YouTubeHeader
-            git pull
-          else
-            echo "YouTubeHeader does not exist. Cloning repository..."
-            cd $THEOS/include
-            git clone --quiet --depth=1 https://github.com/PoomSmart/YouTubeHeader.git
-          fi
-        env:
-          THEOS: ${{ github.workspace }}/theos
-
       - name: Clone YouPiP
         run: |
           deb_url="https://poomsmart.github.io/repo/debs/youtube/youpip/com.ps.youpip_1.8.14_iphoneos-arm.deb"
-          wget "$deb_url" --no-verbose -O ${{ github.workspace }}/ytplus.deb
+          wget "$deb_url" --no-verbose -O ${{ github.workspace }}/youpip.deb
 
       - name: Clone YTUHD
         run: |
           deb_url="https://poomsmart.github.io/repo/debs/youtube/ytuhd/com.ps.ytuhd_1.5.5_iphoneos-arm.deb"
-          wget "$deb_url" --no-verbose -O ${{ github.workspace }}/youpip.deb
+          wget "$deb_url" --no-verbose -O ${{ github.workspace }}/ytuhd.deb
       - name: Clone Return-YouTube-Dislikes
         run: |
           deb_url="https://repo.chariz.com/debs/Fse5H68N3u07vfZ1wuA9AnU0TWxODBLmpKV8vZqXwJyZyxcLCX_QvhYZnNgMdmZhltgxBqABjm5Ouhv2lCm7xA/weeb.lillie.youtubedislikesreturn_1.12.7_iphoneos-arm.deb"
