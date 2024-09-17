@@ -34,15 +34,11 @@ jobs:
           submodules: recursive
 
       - name: Install Dependencies
-        run: brew install make pipx
-
-      - name: pipx
-        run: pipx ensurepath
-
+        run: brew install make
+        
       - name: Set PATH environment variable
         run: |
           echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH
-          echo "$(brew --prefix pipx)/libexec/gnubin" >> $GITHUB_PATH
 
       - name: Cache Theos
         id: theos
